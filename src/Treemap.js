@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
+import './Treemap.css';
 
 
 export default class Treemap extends Component {
@@ -16,11 +17,14 @@ export default class Treemap extends Component {
 
 
     drawTreemap() {
+        const { dataset } = this.props;
 
         const width=960; 
         const height=570;
 
-        var svg = d3.select(".treemapContainer")
+        d3.select("#treemapContainer").selectAll("*").remove();
+
+        var svg = d3.select("#treemapContainer")
         .append("svg")
         .attr("width", width)
         .attr("height", height);
@@ -31,7 +35,12 @@ export default class Treemap extends Component {
         const tip = d3Tip()
         .attr('class', 'd3-tip')
         .attr("id", "tooltip")
-        .html(function(d) { return d; });
+        .html((d) => (
+            `<div>
+                Category: ${d.data.category}<br />
+                Name: ${d.data.name}
+            </div>`
+        ));
         svg.call(tip);
 
         var fader = function(color) { return d3.interpolateRgb(color, "#fff")(0.2); },
@@ -44,7 +53,7 @@ export default class Treemap extends Component {
             .round(true)
             .paddingInner(1);
 
-        d3.json("./data/kickstarter-funding-data.json", function(error, data) {
+        d3.json(`./data/${dataset}`, function(error, data) {
             if (error) throw error;
 
             const root = d3.hierarchy(data)
@@ -103,7 +112,7 @@ export default class Treemap extends Component {
 
     render() {
         return (
-            <div className="treemapContainer"></div>
+            <div id="treemapContainer"></div>
         )
     }
 }
