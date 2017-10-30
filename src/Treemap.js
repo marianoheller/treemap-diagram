@@ -37,8 +37,9 @@ export default class Treemap extends Component {
         .attr("id", "tooltip")
         .html((d) => (
             `<div>
+                Name: ${d.data.name}<br />
                 Category: ${d.data.category}<br />
-                Name: ${d.data.name}
+                Value: ${d.data.value}
             </div>`
         ));
         svg.call(tip);
@@ -48,7 +49,7 @@ export default class Treemap extends Component {
             format = d3.format(",d");
 
         var treemap = d3.treemap()
-            .tile(d3.treemapResquarify)
+            .tile(d3.treemapSquarify)
             .size([width, height])
             .round(true)
             .paddingInner(1);
@@ -77,20 +78,15 @@ export default class Treemap extends Component {
                 .attr("data-value", (d) => d.data.value )
                 .attr("width", function(d) { return d.x1 - d.x0; })
                 .attr("height", function(d) { return d.y1 - d.y0; })
-                .attr("fill", function(d) { return color(d.parent.data.id); })
+                .attr("fill", function(d) { return color(d.data.category); })
                 .on('mouseover', (d,i) => {
                     tip.attr("data-value", () => d.data.value);
                     tip.show(d,i);
                 })
                 .on('mouseout', tip.hide);
 
-            cell.append("clipPath")
-                .attr("id", function(d) { return "clip-" + d.data.id; })
-                .append("use")
-                .attr("xlink:href", function(d) { return "#" + d.data.id; });
-
             cell.append("text")
-                .attr("clip-path", function(d) { return "url(#clip-" + d.data.id + ")"; })
+                .attr('class', 'tile-text')
                 .selectAll("tspan")
                 .data(function(d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
                 .enter().append("tspan")
@@ -98,8 +94,29 @@ export default class Treemap extends Component {
                 .attr("y", function(d, i) { return 13 + i * 10; })
                 .text(function(d) { return d; });
 
-            cell.append("title")
-                .text(function(d) { return d.data.id + "\n" + format(d.value); });
+            const categories = root.leaves().map( (node) => node.data.category ).filter( (cat, catIndex, catArr) => {
+                return catIndex===0 || !catArr.slice(0, catIndex).includes(cat)
+            } );
+
+            const legendElement = legend.selectAll("g")
+            .data(categories)
+            .enter().append("g")
+            .attr("transform", function(d, i) {
+                return 'translate(' + 
+                    ((i%legendElemsPerRow)*LEGEND_H_SPACING) + ',' + 
+                    ((Math.floor(i/legendElemsPerRow))*LEGEND_RECT_SIZE + (LEGEND_V_SPACING*(Math.floor(i/legendElemsPerRow)))) + ')';
+            });
+
+            legendElement.append("rect")
+            .attr('width', 15)
+            .attr('height', 15)
+            .attr('class','legend-item')
+            .attr('fill', (d) => color(d) )
+                
+            legendElement.append("text")
+            .attr('x', 15 + 3)
+            .attr('y', 15 + -2)
+            .text( (d) => d);  
 
             
         });
