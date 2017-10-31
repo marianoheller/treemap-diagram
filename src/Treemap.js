@@ -18,18 +18,27 @@ export default class Treemap extends Component {
 
     drawTreemap() {
         const { dataset } = this.props;
-
-        const width=960; 
-        const height=570;
+        const size = {
+            width: 960,
+            height: 570,
+            legend: {
+                width: 500,
+                size: 15,
+                hSpacing: 150,
+                vSpacing: 10,
+            }
+        }
+        const legendCountPerRow = Math.floor(size.legend.width/size.legend.hSpacing);
 
         d3.select("#treemapContainer").selectAll("*").remove();
 
         var svg = d3.select("#treemapContainer")
         .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", size.width)
+        .attr("height", size.height);
 
         const legend = svg.append("g")
+            .attr("width", size.legend.width)
             .attr("id", "legend");
 
         const tip = d3Tip()
@@ -50,7 +59,7 @@ export default class Treemap extends Component {
 
         var treemap = d3.treemap()
             .tile(d3.treemapSquarify)
-            .size([width, height])
+            .size([size.width, size.height])
             .round(true)
             .paddingInner(1);
 
@@ -102,20 +111,21 @@ export default class Treemap extends Component {
             .data(categories)
             .enter().append("g")
             .attr("transform", function(d, i) {
-                return 'translate(' + 
-                    ((i%legendElemsPerRow)*LEGEND_H_SPACING) + ',' + 
-                    ((Math.floor(i/legendElemsPerRow))*LEGEND_RECT_SIZE + (LEGEND_V_SPACING*(Math.floor(i/legendElemsPerRow)))) + ')';
+                return `translate(
+                    ${ ((i%legendCountPerRow)*size.legend.hSpacing) },
+                    ${ ((Math.floor(i/legendCountPerRow))*size.legend.size + (size.legend.vSpacing*(Math.floor(i/legendCountPerRow)))) }
+                )`;
             });
 
             legendElement.append("rect")
-            .attr('width', 15)
-            .attr('height', 15)
+            .attr('width', size.legend.size)
+            .attr('height', size.legend.size)
             .attr('class','legend-item')
             .attr('fill', (d) => color(d) )
                 
             legendElement.append("text")
-            .attr('x', 15 + 3)
-            .attr('y', 15 + -2)
+            .attr('x', size.legend.size + 3)
+            .attr('y', size.legend.size + -2)
             .text( (d) => d);  
 
             
