@@ -1,6 +1,7 @@
-text {
+tspan {
   font-size: smaller;
   user-select: none;
+  cursor: default;
 }
 
 

@@ -21,6 +21,12 @@ export default class Treemap extends Component {
         const size = {
             width: 960,
             height: 570,
+            margin: {
+                top: 0,
+                right: 0,
+                bottom: 120,
+                left: 0,
+            },
             legend: {
                 width: 500,
                 size: 15,
@@ -31,15 +37,21 @@ export default class Treemap extends Component {
         const legendCountPerRow = Math.floor(size.legend.width/size.legend.hSpacing);
 
         d3.select("#treemapContainer").selectAll("*").remove();
+        d3.select(".d3-tip").remove();        
 
         var svg = d3.select("#treemapContainer")
         .append("svg")
         .attr("width", size.width)
         .attr("height", size.height);
 
-        const legend = svg.append("g")
-            .attr("width", size.legend.width)
-            .attr("id", "legend");
+        const legend = d3.select('#treemapContainer')
+            .append("svg")
+            .attr("width", size.legend.width )
+            .attr("height", 200 )
+            .attr("id", "legend")
+            .attr("transform", `translate(${size.width/4}, ${0})`)
+            .append('g');
+            
 
         const tip = d3Tip()
         .attr('class', 'd3-tip')
