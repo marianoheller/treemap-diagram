@@ -96,12 +96,12 @@ export default class Treemap extends Component {
                 .attr("id", function(d) { return d.data.id; })
                 .attr("data-name", (d) => d.data.name )
                 .attr("data-category", (d) => d.data.category )
-                .attr("data-value", (d) => d.data.value )
+                .attr("data-value", (d) => { return (d.x1 - d.x0)*(d.y1 - d.y0); } )
                 .attr("width", function(d) { return d.x1 - d.x0; })
                 .attr("height", function(d) { return d.y1 - d.y0; })
                 .attr("fill", function(d) { return color(d.data.category); })
                 .on('mouseover', (d,i) => {
-                    tip.attr("data-value", () => d.data.value);
+                    tip.attr("data-value", () => { return (d.x1 - d.x0)*(d.y1 - d.y0); });
                     tip.show(d,i);
                 })
                 .on('mouseout', tip.hide);
